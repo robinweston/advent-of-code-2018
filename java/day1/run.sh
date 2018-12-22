@@ -1,0 +1,1 @@
+docker run --rm -v $PWD:/app -w /app openjdk:8-alpine /bin/sh -c "javac Day1.java && java Day1"
