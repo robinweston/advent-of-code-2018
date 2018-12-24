@@ -22,13 +22,47 @@ const reducePolymer = polymer => {
   return polymer;
 };
 
-let currentPolymer = readInput();
-while (true) {
-  const nextPolymer = reducePolymer(currentPolymer);
-  if (nextPolymer.length === currentPolymer.length) {
-    break;
-  }
-  currentPolymer = nextPolymer;
-}
+const fullyReducePolymer = (polymer) => {
+    let currentPolymer = polymer;
+    while (true) {
+        const nextPolymer = reducePolymer(currentPolymer);
+        if (nextPolymer.length === currentPolymer.length) {
+          break;
+        }
+        currentPolymer = nextPolymer;
+      }
+    return currentPolymer;
+};
 
-console.log("Part 1: ", currentPolymer.length);
+const part1 = () => {
+  let startingPolymer = readInput();
+  let finalPolymer = fullyReducePolymer(startingPolymer);
+  console.log("Part 1: ", finalPolymer.length);
+};
+
+String.prototype.replaceAll = function(strReplace, strWith) {
+    // See http://stackoverflow.com/a/3561711/556609
+    var esc = strReplace.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+    var reg = new RegExp(esc, 'ig');
+    return this.replace(reg, strWith);
+};
+
+const part2 = () => {
+    let polymer = readInput();
+    const polymerLengths = new Map();
+
+    for(let i=0; i < 26; i++) {
+        const char = String.fromCharCode(97 + i);
+        console.log("Removing " + char);
+        const polymerWithoutChars = polymer.replaceAll(char, "");
+        const reducedPolymer = fullyReducePolymer(polymerWithoutChars);
+        polymerLengths.set(char, reducedPolymer.length);
+    }
+    
+    const sortedPolymerLengths = [...polymerLengths.entries()].sort((a, b) => a[1] - b[1]);
+  
+    console.log("Part 2: ", sortedPolymerLengths[0][1]);
+  };
+
+//part1();
+part2();
