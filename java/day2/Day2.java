@@ -24,7 +24,7 @@ public class Day2 {
         };
 
         int answer = idsWithDoubleCharacter * idsWithTripleCharacter;
-        System.out.println("Part 1 Answer: " + answer);
+        System.out.println("Part 1: " + answer);
     }
 
     private static void printMap(Map<Character, Integer> map) {

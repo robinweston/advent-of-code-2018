@@ -26,14 +26,14 @@ public class Day1 {
   private static void part1() throws IOException {
     int[] changeList = getChanges();
     int total = Arrays.stream(changeList).sum();
-    System.out.println("Part1: " + total);
+    System.out.println("Part 1: " + total);
   }
 
   private static void part2() throws IOException {
     int[] changeList = getChanges();
     int answer = findDuplicateFrequency(changeList);
 
-    System.out.println("Part2: " + answer);
+    System.out.println("Part 2: " + answer);
   }
 
   private static int findDuplicateFrequency(int[] changeList) {
