@@ -75,5 +75,26 @@ const part1 = () => {
   console.log("Part 1:", answer.closestPoints);
 };
 
+const calculateTotalDistanceToPoint = (point, coords) =>
+  _.sumBy(coords, c => manhattanDistance(point, c));
+
+const part2 = () => {
+  const input = readInput();
+  const coords = input.split(/\r\n|\n/).map(lineToCoord);
+
+  let regionsUnder10000 = 0;
+  for (let x = 0; x <= 10000; x++) {
+    for (let y = 0; y <= 10000; y++) {
+      const point = { x, y };
+      const totalDistance = calculateTotalDistanceToPoint(point, coords);
+      if(totalDistance < 10000) {
+        regionsUnder10000++;
+      }
+    }
+  }
+
+  console.log("Part 2:", regionsUnder10000);
+};
+
 part1();
-//part2();
+part2();
