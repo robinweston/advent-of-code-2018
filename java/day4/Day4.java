@@ -17,31 +17,47 @@ public class Day4 {
         Map<Integer, Integer> totalMinutesSleptByGuardId = sleeps.stream().collect(
                 Collectors.groupingBy(GuardSleep::getGuardId, Collectors.summingInt(GuardSleep::totalSleepMinutes)));
 
-        int sleepiestGuardId = keyForMaxMapValue(totalMinutesSleptByGuardId);
+        int sleepiestGuardId = maxMapKeyByValue(totalMinutesSleptByGuardId);
 
         List<GuardSleep> sleepiestGuardSleeps = sleeps.stream().filter(s -> s.getGuardId() == sleepiestGuardId)
                 .collect(Collectors.toList());
-        int sleepiestMinute = findSleepiestMinute(sleepiestGuardSleeps);
+        SleepyMinute sleepiestMinute = findSleepiestMinute(sleepiestGuardSleeps);
 
-        System.out.println("Part 1: " + sleepiestGuardId * sleepiestMinute);
+        System.out.println("Part 1: " + sleepiestGuardId * sleepiestMinute.getMinute());
     }
 
     private static void part2() {
+        List<GuardSleep> sleeps = parseGuardSleeps();
 
+        Map<Integer, List<GuardSleep>> sleepsByGuardId = sleeps.stream()
+                .collect(Collectors.groupingBy(GuardSleep::getGuardId));
+
+        Map<Integer, SleepyMinute> sleepiestMinuteByGuardId = sleepsByGuardId.entrySet().stream()
+                .collect(Collectors.toMap(e -> e.getKey(), e -> findSleepiestMinute(e.getValue())));
+
+        Entry<Integer, SleepyMinute> sleepiestGuard = Collections.max(sleepiestMinuteByGuardId.entrySet(),
+                (entry1, entry2) -> entry1.getValue().getOccurences() - entry2.getValue().getOccurences());
+
+        System.out.println("Part 2: " + sleepiestGuard.getKey() * sleepiestGuard.getValue().getMinute());
     }
 
-    private static <T> T keyForMaxMapValue(Map<T, Integer> map) {
-        return Collections.max(map.entrySet(), (entry1, entry2) -> entry1.getValue() - entry2.getValue()).getKey();
+    private static <T> T maxMapKeyByValue(Map<T, Integer> map) {
+        return maxMapEntryByValue(map).getKey();
     }
 
-    private static int findSleepiestMinute(List<GuardSleep> sleeps) {
+    private static <T> Entry<T, Integer> maxMapEntryByValue(Map<T, Integer> map) {
+        return Collections.max(map.entrySet(), (entry1, entry2) -> entry1.getValue() - entry2.getValue());
+    }
+
+    private static SleepyMinute findSleepiestMinute(List<GuardSleep> sleeps) {
         Map<Integer, Integer> minutes = new HashMap<>();
         for (GuardSleep sleep : sleeps) {
             for (int i = sleep.getStartMinute(); i < sleep.getEndMinute(); i++) {
                 incrementMapValue(minutes, i);
             }
         }
-        return keyForMaxMapValue(minutes);
+        Entry<Integer, Integer> sleepiestMinute = maxMapEntryByValue(minutes);
+        return new SleepyMinute(sleepiestMinute.getKey(), sleepiestMinute.getValue());
     }
 
     private static <T> void incrementMapValue(Map<T, Integer> map, T key) {
