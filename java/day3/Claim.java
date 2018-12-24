@@ -8,6 +8,10 @@ public class Claim {
     private int width;
     private int height;
 
+    public int getId() {
+        return this.id;
+    }
+
     public Set<String> claimedSquares() {
         Set<String> squares = new HashSet<>();
         for(int i=left;i < left + width; i++) {
