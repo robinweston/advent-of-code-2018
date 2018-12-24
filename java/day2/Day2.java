@@ -7,6 +7,7 @@ import java.nio.file.*;
 public class Day2 {
     public static void main(String[] args) {
         part1();
+        part2();
     }
 
     private static void part1() {
@@ -25,6 +26,36 @@ public class Day2 {
 
         int answer = idsWithDoubleCharacter * idsWithTripleCharacter;
         System.out.println("Part 1: " + answer);
+    }
+
+    private static void part2() {
+        List<String> ids = getIds();
+        for(int i=0; i < ids.size(); i++) {
+            for(int j=0; j < ids.size(); j++) {
+                String id1 = ids.get(i);
+                String id2 = ids.get(j);
+                List<Integer> diffs = characterDiffsInString(id1, id2);
+                if(diffs.size() == 1) {
+                    String answer = removeChartAt(id1, diffs.get(0));
+                    System.out.println("Part 2: " + answer);
+                    return;
+                }
+            }
+        }
+    }
+
+    private static String removeChartAt(String str, int charPosition) {
+        return str.substring(0, charPosition) + str.substring(charPosition+1);
+    }
+
+    private static List<Integer> characterDiffsInString(String str1, String str2) {
+        List<Integer> diffPositions = new ArrayList<Integer>();
+        for(int i=0; i < str1.length(); i++){
+            if(str1.charAt(i) != str2.charAt(i)) {
+                diffPositions.add(i);
+            }
+        }
+        return diffPositions;
     }
 
     private static void printMap(Map<Character, Integer> map) {
