@@ -39,19 +39,32 @@ const parseNode = (numbers, startPoint, currentId) => {
 const sumMetaData = node =>
   _.sum(node.metadata) + _.sum(node.children.map(c => sumMetaData(c)));
 
+const sumCustom = node => {
+  if (node.children.length === 0) {
+    return _.sum(node.metadata);
+  }
+
+  const childIndexes = node.metadata;
+  return _.sum(
+    childIndexes.map(ci => {
+      const child = node.children[ci - 1];
+      return child ? sumCustom(child) : 0;
+    })
+  );
+};
+
+const input = readInput();
+const numbers = input.split(" ").map(n => parseInt(n, 10));
+const rootNode = parseNode(numbers, 0, "A");
+
 const part1 = () => {
-  const input = readInput();
-
-  let numbers = input.split(" ").map(n => parseInt(n, 10));
-  const rootNode = parseNode(numbers, 0, "A");
-
   const totalMetaData = sumMetaData(rootNode);
-
   console.log("Part 1:", totalMetaData);
 };
 
 const part2 = () => {
-  console.log("Part 2:", "XXX");
+  const totalCustom = sumCustom(rootNode);
+  console.log("Part 2:", totalCustom);
 };
 
 part1();
