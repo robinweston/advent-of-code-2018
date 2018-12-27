@@ -2,30 +2,36 @@ const fs = require("fs");
 const path = require("path");
 const _ = require("lodash");
 
-const mod = (x, n) => (x % n + n) % n;
+const CircularList = require("./CircularList");
 
 const calculateHighScore = (highestMarble, numberOfPlayers) => {
   const playerScores = _.fill(new Array(numberOfPlayers), 0);
-  let currentCircle = [0];
-  let currentMarblePosition = 0;
+  const circle = new CircularList();
+  circle.add({ value: 0 });
   for (let m = 1; m <= highestMarble; m++) {
+    if (m % 100000 === 0) {
+      console.log(`Marble ${m}/${highestMarble}`);
+    }
     if (m % 23 === 0) {
       const currentPlayer = m % numberOfPlayers;
-      currentMarblePosition = mod((currentMarblePosition - 7), currentCircle.length);
-      playerScores[currentPlayer] += currentCircle[currentMarblePosition] + m;
-      _.pullAt(currentCircle, [currentMarblePosition]);
+      circle.backBy(7);
+      playerScores[currentPlayer] += circle.currentItem.value + m;
+      circle.remove();
     } else {
-      currentMarblePosition = mod((currentMarblePosition + 2), currentCircle.length);
-      currentCircle.splice(currentMarblePosition, 0, m);
+      circle.forwardBy(2);
+      circle.add({ value: m });
     }
+    //circle.print();
   }
 
   const highestScore = _.max(playerScores);
-  console.log(`${numberOfPlayers} players; last marble is worth ${highestMarble} points: high score is ${highestScore}`);
+  console.log(
+    `${numberOfPlayers} players; last marble is worth ${highestMarble} points: high score is ${highestScore}`
+  );
 };
 
 const part1 = () => {
-  console.log("Part 1:")
+  console.log("Part 1:");
   calculateHighScore(25, 5);
   calculateHighScore(1618, 10);
   calculateHighScore(7999, 13);
@@ -36,7 +42,8 @@ const part1 = () => {
 };
 
 const part2 = () => {
-  console.log("Part 2:", "XXX");
+  console.log("Part 2:");
+  calculateHighScore(71940 * 100, 465);
 };
 
 part1();
