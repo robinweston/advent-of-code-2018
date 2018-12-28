@@ -69,7 +69,6 @@ const part1 = () => {
       p.position.x += p.velocity.x;
       p.position.y += p.velocity.y;
     });
-    second++;
   }
 };
 
