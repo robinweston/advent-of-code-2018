@@ -24,42 +24,68 @@ const calculateSinglePowerLevel = (x, y, serialNumber) => {
   return powerLevel;
 };
 
-
-const calculate3x3PowerLevel = (topX, topY, serialNumber) => {
+const calculateGridPowerLevel = (topX, topY, serialNumber, gridSize) => {
   let sum = 0;
-  for (let x = topX; x < topX + 3; x++) {
-    for (let y = topY; y < topY + 3; y++) {
+  for (let x = topX; x < topX + gridSize; x++) {
+    for (let y = topY; y < topY + gridSize; y++) {
       sum += calculateSinglePowerLevel(x, y, serialNumber);
     }
   }
   return sum;
 };
 
-const cached3x3PowerLevels = new Map();
-const findHighestPowerLevel = serialNumber => {
-  cachedSinglePowerLevels.clear();
-  cached3x3PowerLevels.clear();
-
-  for (let x = 0; x <= 300 - 3; x++) {
-    for (let y = 0; y <= 300 - 3; y++) {
-      const powerLevelFor3x3 = calculate3x3PowerLevel(x, y, serialNumber);
-      cached3x3PowerLevels.set(`${x},${y}`, powerLevelFor3x3);
+const findHighestGridPowerLevel = (serialNumber, gridSize) => {
+  let max = null;
+  for (let x = 0; x <= 300 - gridSize; x++) {
+    for (let y = 0; y <= 300 - gridSize; y++) {
+      const gridTotalPower = calculateGridPowerLevel(
+        x,
+        y,
+        serialNumber,
+        gridSize
+      );
+      if (!max || gridTotalPower > max.maxValue) {
+        max = {
+          coord: `${x},${y},${gridSize}`,
+          maxValue: gridTotalPower
+        };
+      }
     }
   }
 
-  const highest =  _.maxBy(Array.from(cached3x3PowerLevels.entries()), e => e[1]);
-  console.log(`Highest power level for serial ${serialNumber}: ${highest}`)
+  console.log(`Finished grid size ${gridSize}. Max is ${JSON.stringify(max)}`);
+  return max;
+};
+
+const findHighestPowerLevelForAnyGrid = serialNumber => {
+  let max = null;
+  for (let gridSize = 1; gridSize <= 300; gridSize++) {
+    const gridPowerLevel = findHighestGridPowerLevel(serialNumber, gridSize);
+    if (!max || gridPowerLevel.maxValue > max.maxValue) {
+      max = gridPowerLevel;
+    }
+  }
+
+  console.log(
+    `Highest power level for serial ${serialNumber}: ${JSON.stringify(max)}`
+  );
 };
 
 const part1 = () => {
   console.log("Part 1:");
-  findHighestPowerLevel(18);
-  findHighestPowerLevel(42);
-  findHighestPowerLevel(5791);
+  findHighestGridPowerLevel(18, 3);
+
+  cachedSinglePowerLevels.clear();
+  findHighestGridPowerLevel(42, 3);
+
+  cachedSinglePowerLevels.clear();
+  findHighestGridPowerLevel(5791, 3);
 };
 
 const part2 = () => {
   console.log("Part 2:");
+  cachedSinglePowerLevels.clear();
+  findHighestPowerLevelForAnyGrid(5791);
 };
 
 part1();
