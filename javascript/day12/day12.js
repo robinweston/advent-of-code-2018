@@ -10,12 +10,12 @@ const readInput = () => {
 const parseInput = input => {
   const initialState = input[0].replace("initial state: ", "");
 
-  const rules = [];
+  const rules = new Map();
   for (let i = 2; i < input.length; i++) {
     const line = input[i];
     const pattern = line.substring(0, 5);
     const result = line.substring(9, 10);
-    rules.push({ pattern, result });
+    rules.set(pattern, result);
   }
 
   return {
@@ -36,13 +36,13 @@ const generateNextGeneration = state => {
   let nextPlants = state.plants;
   let nextPlantZeroIndex = state.plantZeroIndex;
 
-  const leftMostPlant = Array.from(nextPlants).indexOf("#");
+  const leftMostPlant = nextPlants.indexOf("#");
   if (leftMostPlant < 5) {
     const potsToAdd = 5 - leftMostPlant;
     nextPlants = _.repeat(".", potsToAdd) + nextPlants;
     nextPlantZeroIndex += potsToAdd;
   }
-  const rightMostPlant = Array.from(nextPlants).lastIndexOf("#");
+  const rightMostPlant = nextPlants.lastIndexOf("#");
   if (rightMostPlant > nextPlants.length - 5) {
     const potsToAdd = nextPlants.length - rightMostPlant + 5;
     nextPlants = nextPlants + _.repeat(".", potsToAdd);
@@ -52,9 +52,9 @@ const generateNextGeneration = state => {
 
   for (let i = 0; i < nextPlants.length - 5; i++) {
     const nextFive = nextPlants.substring(i, i + 5);
-    const matchedRule = parsedInput.rules.find(r => r.pattern === nextFive);
+    const matchedRule = parsedInput.rules.get(nextFive);
     nextGeneration[i + 2] =
-      matchedRule && matchedRule.result === "#" ? "#" : ".";
+      matchedRule === "#" ? "#" : ".";
   }
   nextPlants = nextGeneration.join("");
   return {
@@ -66,32 +66,42 @@ const generateNextGeneration = state => {
 const calculateScore = state => {
   let score = 0;
   const plantsArray = Array.from(state.plants);
-  for(let i=0; i < plantsArray.length; i++) {
-    if(plantsArray[i] === '#') {
+  for (let i = 0; i < plantsArray.length; i++) {
+    if (plantsArray[i] === "#") {
       score += i - state.plantZeroIndex;
     }
   }
   return score;
 };
 
-const part1 = () => {
+const growPlants = generations => {
   let state = {
     plants: parsedInput.initialState,
     plantZeroIndex: 0
   };
-  for (let generation = 1; generation <= 20; generation++) {
+  for (let generation = 1; generation <= generations; generation++) {
+    if (generation % 10000 === 0) {
+      console.log(`At generation ${generation}`);
+    }
     state = generateNextGeneration(state);
-    console.log(
-      `${generation}. Plant 0 at ${state.plantZeroIndex}: ${state.plants}`
-    );
+    const score = calculateScore(state);
+    console.log(`Generation ${generation}. Score ${score}`)
   }
 
-  const score = calculateScore(state);
+  return calculateScore(state);
+};
+
+const part1 = () => {
+  const score = growPlants(20);
   console.log(`Part 1: ${score}`);
 };
 
 const part2 = () => {
-  console.log("Part 2:XXX");
+  const score200 = growPlants(200);
+  const score201 = growPlants(201);
+  const diff = score201 - score200;
+  const answer = ((50000000000 - 200) * diff) + score200;
+  console.log(`Part 2: ${answer}`);
 };
 
 part1();
