@@ -2,8 +2,8 @@ const fs = require("fs");
 const path = require("path");
 const _ = require("lodash");
 
-const readInput = () => {
-  const filePath = path.join(__dirname, "input.txt");
+const readInput = file => {
+  const filePath = path.join(__dirname, file);
   return fs.readFileSync(filePath, "utf8");
 };
 
@@ -43,7 +43,7 @@ const charToPath = char => {
     case "v":
       return vertical;
     case "/":
-    return forwardTurn;
+      return forwardTurn;
     case "\\":
       return backTurn;
     case "+":
@@ -176,35 +176,55 @@ const hasCartCrashed = (cart, allCarts) =>
       c.position.y === cart.position.y
   );
 
-const tick = (carts, paths) => {
+const tick = (carts, paths, removeCrashedCarts) => {
   const sortedCarts = _.sortBy(carts, c => c.position.y, c => c.position.x);
 
   for (let i = 0; i < sortedCarts.length; i++) {
     const cart = sortedCarts[i];
+    if (!carts.find(c => cart.id === c.id)) {
+      continue;
+    }
     moveCart(cart, paths);
     if (hasCartCrashed(cart, sortedCarts)) {
       cart.crashed = true;
-      return true;
+      if (removeCrashedCarts) {
+        _.remove(
+          carts,
+          c =>
+            c.position.x === cart.position.x && c.position.y === cart.position.y
+        );
+      } else {
+        return true;
+      }
     }
   }
 
   return false;
 };
 
-const input = readInput();
-const parsedInput = parseInput(input.split(/\r\n|\n/));
-
 const part1 = () => {
-  let isCrash = false;
-  while (!isCrash) {
-    isCrash = tick(parsedInput.carts, parsedInput.paths);
+  const input = readInput("input.txt");
+  const parsedInput = parseInput(input.split(/\r\n|\n/));
+
+  let done = false;
+  while (!done) {
+    done = tick(parsedInput.carts, parsedInput.paths, false);
   }
   const crashedCart = parsedInput.carts.find(c => c.crashed);
   console.log(`Part 1: ${JSON.stringify(crashedCart.position)}`);
 };
 
 const part2 = () => {
-  console.log(`Part 2: XXX`);
+  const input = readInput("input.txt");
+  const parsedInput = parseInput(input.split(/\r\n|\n/));
+
+  let done = false;
+  while (!done) {
+    tick(parsedInput.carts, parsedInput.paths, true);
+    done = parsedInput.carts.length === 1;
+  }
+  const remainingCart = parsedInput.carts[0];
+  console.log(`Part 2: ${JSON.stringify(remainingCart.position)}`);
 };
 
 part1();
